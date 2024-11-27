@@ -1,0 +1,21 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 30d1308..dee2d63 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -100,7 +100,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_BINDIR
+ enable_testing()
+ include(CTest)
+ 
+-add_subdirectory(external)
++find_package(fmt REQUIRED)
++find_package(glog REQUIRED)
+ add_subdirectory(source)
+ 
+ include(rocprofiler_register_config_install)
+@@ -113,6 +114,4 @@ if(ROCPROFILER_REGISTER_BUILD_SAMPLES)
+     add_subdirectory(samples)
+ endif()
+ 
+-include(rocprofiler_register_config_packaging)
+-
+ rocprofiler_register_print_features()

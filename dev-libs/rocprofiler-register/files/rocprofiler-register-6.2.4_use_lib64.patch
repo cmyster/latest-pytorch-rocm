@@ -1,0 +1,14 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 30d1308..3e16311 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -78,7 +78,8 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake ${PROJECT_SOURCE_DIR}/cmake/Mo
+ include(GNUInstallDirs) # install directories
+ 
+ # ROCm does not use lib64
+-set(CMAKE_INSTALL_LIBDIR "lib")
++# But Gentoo does.
++set(CMAKE_INSTALL_LIBDIR "lib64")
+ 
+ include(rocprofiler_register_utilities) # various functions/macros
+ include(rocprofiler_register_interfaces) # interface libraries
