@@ -36,9 +36,7 @@ DEPEND="
 RDEPEND="${DEPEND}
 	!<dev-util/hip-5.7"
 
-#PATCHES=(
-#	"${FILESDIR}/${PN}-5.7.1-hipcc-hip-version.patch"
-#)
+	PATCHES=()
 
 src_unpack() {
 	if [[ ${PV} == *9999 ]] ; then

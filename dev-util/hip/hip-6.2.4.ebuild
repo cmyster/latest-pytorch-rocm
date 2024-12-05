@@ -72,9 +72,10 @@ RDEPEND="${DEPEND}
 	)
 "
 
-PATCHES=(
-	"${FILESDIR}/hip-6.1.0-install.patch"
-)
+PATCHES=()
+#PATCHES=(
+#	"${FILESDIR}/hip-6.1.0-install.patch"
+#)
 
 hip_test_wrapper() {
 	local CMAKE_USE_DIR="${TEST_S}"
@@ -86,39 +87,39 @@ hip_test_wrapper() {
 src_prepare() {
 	# NOTE We do this head stand to safe the patch size.
 	# NOTE Adjust when we drop 5.7.1
-	sed \
-		-e 's:kAmdgcnTargetTriple:AMDGCN_TARGET_TRIPLE:g' \
-		-i hipamd/src/hip_code_object.cpp || die
-	eapply "${FILESDIR}/${PN}-5.7.1-extend-isa-compatibility-check.patch"
-	sed \
-		-e 's:AMDGCN_TARGET_TRIPLE:kAmdgcnTargetTriple:g' \
-		-i hipamd/src/hip_code_object.cpp || die
+	#sed \
+#		-e 's:kAmdgcnTargetTriple:AMDGCN_TARGET_TRIPLE:g' \
+#		-i hipamd/src/hip_code_object.cpp || die
+#	eapply "${FILESDIR}/${PN}-5.7.1-extend-isa-compatibility-check.patch"
+#	sed \
+#		-e 's:AMDGCN_TARGET_TRIPLE:kAmdgcnTargetTriple:g' \
+#		-i hipamd/src/hip_code_object.cpp || die
 
 	# hipamd is itself built by cmake, and should never provide a
 	# FindHIP.cmake module. But the reality is some package relies on it.
 	# Set HIP and HIP Clang paths directly, don't search using heuristics
-	sed -e "s:# Search for HIP installation:set(HIP_ROOT_DIR \"${EPREFIX}/usr\"):" \
-		-e "s:#Set HIP_CLANG_PATH:set(HIP_CLANG_PATH \"$(get_llvm_prefix -d)/bin\"):" \
-		-i "${WORKDIR}/HIP-rocm-${PV}/cmake/FindHIP.cmake" || die
+#	sed -e "s:# Search for HIP installation:set(HIP_ROOT_DIR \"${EPREFIX}/usr\"):" \
+#		-e "s:#Set HIP_CLANG_PATH:set(HIP_CLANG_PATH \"$(get_llvm_prefix -d)/bin\"):" \
+#		-i "${WORKDIR}/HIP-rocm-${PV}/cmake/FindHIP.cmake" || die
 
 	cmake_src_prepare
 
 	# With Clang>17 -amdgpu-early-inline-all=true causes OOMs in dependencies
 	# https://github.com/llvm/llvm-project/issues/86332
-	if [ "$LLVM_SLOT" -le "17" ]; then
-		sed -e "s/-mllvm=-amdgpu-early-inline-all=true //" -i hipamd/hip-config-amd.cmake || die
-		sed -e "s/-mllvm=-amdgpu-early-inline-all=true;//" -i "${WORKDIR}/HIP-rocm-${PV}/hip-lang-config.cmake.in"
-	fi
+#	if [ "$LLVM_SLOT" -le "17" ]; then
+#		sed -e "s/-mllvm=-amdgpu-early-inline-all=true //" -i hipamd/hip-config-amd.cmake || die
+#		sed -e "s/-mllvm=-amdgpu-early-inline-all=true;//" -i "${WORKDIR}/HIP-rocm-${PV}/hip-lang-config.cmake.in"
+#	fi
 
-	if use test; then
-		local PATCHES=(
-			"${FILESDIR}"/hip-test-6.0.2-hipcc-system-install.patch
-			"${FILESDIR}"/hip-test-5.7.1-remove-incompatible-flag.patch
-			"${FILESDIR}"/hip-test-6.1.0-disable-hipKerArgOptimization.patch
-			"${FILESDIR}"/hip-test-6.1.1-fix-musl.patch
-		)
-		hip_test_wrapper cmake_src_prepare
-	fi
+#	if use test; then
+#		local PATCHES=(
+#			"${FILESDIR}"/hip-test-6.0.2-hipcc-system-install.patch
+#			"${FILESDIR}"/hip-test-5.7.1-remove-incompatible-flag.patch
+#			"${FILESDIR}"/hip-test-6.1.0-disable-hipKerArgOptimization.patch
+#			"${FILESDIR}"/hip-test-6.1.1-fix-musl.patch
+#		)
+#		hip_test_wrapper cmake_src_prepare
+#	fi
 }
 
 src_configure() {
@@ -134,7 +135,7 @@ src_configure() {
 
 	# Fix ld.lld linker error: https://github.com/ROCm/HIP/issues/3382
 	# See also: https://github.com/gentoo/gentoo/pull/29097
-	append-ldflags $(test-flags-CCLD -Wl,--undefined-version)
+#	append-ldflags $(test-flags-CCLD -Wl,--undefined-version)
 
 	local mycmakeargs=(
 		-DCMAKE_PREFIX_PATH="$(get_llvm_prefix)"
@@ -152,6 +153,7 @@ src_configure() {
 
 		-DOpenGL_GL_PREFERENCE="GLVND"
 		-DCMAKE_DISABLE_FIND_PACKAGE_Git="yes"
+		-DCMAKE_BUILD_TYPE="Release"
 	)
 
 	if use video_cards_amdgpu; then
@@ -200,19 +202,19 @@ src_test() {
 	export LD_LIBRARY_PATH="${BUILD_DIR}/hipamd/lib"
 
 	# TODO: research how to test Vulkan-related features.
-	local CMAKE_SKIP_TESTS=(
-		Unit_hipExternalMemoryGetMappedBuffer_Vulkan_Positive_Read_Write
-		Unit_hipExternalMemoryGetMappedBuffer_Vulkan_Negative_Parameters
-		Unit_hipImportExternalMemory_Vulkan_Negative_Parameters
-		Unit_hipWaitExternalSemaphoresAsync_Vulkan_Positive_Binary_Semaphore
-		Unit_hipWaitExternalSemaphoresAsync_Vulkan_Positive_Multiple_Semaphores
-		Unit_hipWaitExternalSemaphoresAsync_Vulkan_Negative_Parameters
-		Unit_hipSignalExternalSemaphoresAsync_Vulkan_Positive_Binary_Semaphore
-		Unit_hipSignalExternalSemaphoresAsync_Vulkan_Positive_Multiple_Semaphores
-		Unit_hipSignalExternalSemaphoresAsync_Vulkan_Negative_Parameters
-		Unit_hipImportExternalSemaphore_Vulkan_Negative_Parameters
-		Unit_hipDestroyExternalSemaphore_Vulkan_Negative_Parameters
-	)
+#	local CMAKE_SKIP_TESTS=(
+#		Unit_hipExternalMemoryGetMappedBuffer_Vulkan_Positive_Read_Write
+#		Unit_hipExternalMemoryGetMappedBuffer_Vulkan_Negative_Parameters
+#		Unit_hipImportExternalMemory_Vulkan_Negative_Parameters
+#		Unit_hipWaitExternalSemaphoresAsync_Vulkan_Positive_Binary_Semaphore
+#		Unit_hipWaitExternalSemaphoresAsync_Vulkan_Positive_Multiple_Semaphores
+#		Unit_hipWaitExternalSemaphoresAsync_Vulkan_Negative_Parameters
+#		Unit_hipSignalExternalSemaphoresAsync_Vulkan_Positive_Binary_Semaphore
+#		Unit_hipSignalExternalSemaphoresAsync_Vulkan_Positive_Multiple_Semaphores
+#		Unit_hipSignalExternalSemaphoresAsync_Vulkan_Negative_Parameters
+#		Unit_hipImportExternalSemaphore_Vulkan_Negative_Parameters
+#		Unit_hipDestroyExternalSemaphore_Vulkan_Negative_Parameters
+#	)
 
 	MAKEOPTS="-j1" hip_test_wrapper cmake_src_test
 }
